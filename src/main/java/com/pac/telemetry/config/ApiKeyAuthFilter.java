@@ -26,6 +26,12 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
+        // Skip auth for Swagger/actuator endpoints
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/actuator")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (path.startsWith("/api/device/")) {
             String incomingToken = request.getHeader("X-Device-Token");
             if (incomingToken == null || !incomingToken.equals(deviceApiToken)) {
